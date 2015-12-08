@@ -1,11 +1,13 @@
 namespace Kase.Migrations
 {
+    using Data;
+    using Models;
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<Kase.Models.ApplicationDbContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<KaseDbContext>
     {
         public Configuration()
         {
@@ -13,20 +15,62 @@ namespace Kase.Migrations
             AutomaticMigrationDataLossAllowed = true;
         }
 
-        protected override void Seed(Kase.Models.ApplicationDbContext context)
+        protected override void Seed(KaseDbContext context)
         {
-            //  This method will be called after migrating to the latest version.
+            context.Projects.AddOrUpdate(p => p.Id,
+                new Project
+                {
+                    Id = 1,
+                    Name = "Kase"
+                },
+                new Project
+                {
+                    Id = 2,
+                    Name = "VisualStudio"
+                });
+            context.SaveChanges();
 
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
-            //  to avoid creating duplicate seed data. E.g.
-            //
-            //    context.People.AddOrUpdate(
-            //      p => p.FullName,
-            //      new Person { FullName = "Andrew Peters" },
-            //      new Person { FullName = "Brice Lambson" },
-            //      new Person { FullName = "Rowan Miller" }
-            //    );
-            //
+            context.Areas.AddOrUpdate(p => p.Id,
+                new Area
+                {
+                    Id = 1,
+                    Name = "Account management",
+                    Project = context.Projects.Where(p => p.Name == "Kase").FirstOrDefault()
+                },
+                new Area
+                {
+                    Id = 2,
+                    Name = "Test case management",
+                    Project = context.Projects.Where(p => p.Name == "Kase").FirstOrDefault()
+                },
+                new Area
+                {
+                    Id = 3,
+                    Name = "Testing area",
+                    Project = context.Projects.Where(p => p.Name == "Visual Studio").FirstOrDefault()
+                });
+            context.SaveChanges();
+            
+            context.Features.AddOrUpdate(p => p.Id,
+                new Feature
+                {
+                    Id = 1,
+                    Name = "Account creation",
+                    Area = context.Areas.Where(a => a.Name == "Account management").FirstOrDefault()
+                },
+                new Feature
+                {
+                    Id = 2,
+                    Name = "Account modification",
+                    Area = context.Areas.Where(a => a.Name == "Account management").FirstOrDefault()
+                },
+                new Feature
+                {
+                    Id = 3,
+                    Name = "Test feature",
+                    Area = context.Areas.Where(a => a.Name == "Testing area").FirstOrDefault()
+                });
+            context.SaveChanges();
         }
     }
 }
